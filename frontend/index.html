@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Proposal Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+    }
+    textarea {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    input, select, button {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+    .result {
+      white-space: pre-wrap;
+      background: #f4f4f4;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>AI Proposal Generator</h1>
+    <form id="proposalForm">
+      <label for="inputText">Project Description:</label>
+      <textarea id="inputText" rows="6" placeholder="Enter your project description..."></textarea>
+      
+      <label for="industry">Industry:</label>
+      <input id="industry" type="text" placeholder="general" value="general">
+      
+      <label for="tone">Tone:</label>
+      <input id="tone" type="text" placeholder="professional" value="professional">
+      
+      <label for="includeContext">Include Context:</label>
+      <input id="includeContext" type="checkbox">
+      
+      <button type="submit">Generate Proposal</button>
+    </form>
+    
+    <h2>Result:</h2>
+    <div id="result" class="result"></div>
+  </div>
+
+  <script>
+    document.getElementById('proposalForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const inputText = document.getElementById('inputText').value;
+      const industry = document.getElementById('industry').value || "general";
+      const tone = document.getElementById('tone').value || "professional";
+      const includeContext = document.getElementById('includeContext').checked;
+
+      // Show loading message
+      document.getElementById('result').textContent = "Generating proposal...";
+
+      try {
+        const response = await fetch('/generate_proposal', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            input_text: inputText,
+            industry: industry,
+            tone: tone,
+            include_context: includeContext
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || 'Unknown error occurred');
+        }
+        const data = await response.json();
+        document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        document.getElementById('result').textContent = "Error: " + error.message;
+      }
+    });
+  </script>
+</body>
+</html>
