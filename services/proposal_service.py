@@ -3,6 +3,7 @@ from chains.proposal_chain import generate_proposal, assemble_proposal_document
 from utils.context_loader import load_context_documents
 from utils.logger import logger
 
+
 def get_proposal(input_text: str, formatted: bool = True, include_context: bool = False) -> dict:
     """
     Orchestrates the proposal generation process.

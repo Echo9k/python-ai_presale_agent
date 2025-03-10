@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from services.proposal_service import get_proposal
 from utils.logger import logger
 
+
 app = FastAPI(title="AI Pre-Sales Proposal Generator API", version="1.0")
 
 class ProposalRequest(BaseModel):
