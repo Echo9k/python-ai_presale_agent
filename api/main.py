@@ -8,6 +8,7 @@ app = FastAPI(title="AI Pre-Sales Proposal Generator API", version="1.0")
 
 class ProposalRequest(BaseModel):
     input_text: str
+    include_context: bool = False
 
 @app.get("/")
 def read_root():
@@ -21,7 +22,7 @@ def health_check():
 def generate_proposal_endpoint(request: ProposalRequest):
     logger.info("Received proposal generation request")
     try:
-        result = get_proposal(request.input_text, formatted=True)
+        result = get_proposal(request.input_text, formatted=True, include_context=request.include_context)
         logger.info("Proposal generated successfully")
         return result
     except Exception as e:
