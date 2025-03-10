@@ -1,0 +1,1 @@
+Estimate the project timeline by analyzing its complexity, key phases, and potential delays. Provide a duration range (minimum to maximum) that accounts for dependencies, resource availability, and risk factors. Justify the estimate with reasoning based on industry best practices, historical data (if applicable), and any known constraints.

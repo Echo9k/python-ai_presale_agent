@@ -1,0 +1,6 @@
+langchain
+langsmith
+langgraph
+python-dotenv  # If you need to manage environment variables
+groq
+crewai

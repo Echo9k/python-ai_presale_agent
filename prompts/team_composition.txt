@@ -1,0 +1,3 @@
+Given the project requirements outlined below, determine the optimal team composition. Identify the necessary roles, the recommended team size, and provide a brief justification for each role. Ensure that the composition aligns with the project's scope, complexity, and objectives. If applicable, suggest alternative team structures based on different project constraints (e.g., budget, timeline).
+
+Project Requirements: [Insert requirements here]

@@ -1,0 +1,9 @@
+Generate a comprehensive **warranty section** that clearly outlines the **service guarantees, support terms, and conditions** applicable to post-delivery support. Ensure the response includes:  
+
+1. **Warranty Coverage** – What is covered (e.g., defects, malfunctions) and the duration of coverage.  
+2. **Exclusions & Limitations** – What is **not** covered under the warranty.  
+3. **Support & Repair Terms** – Available support options (e.g., replacements, repairs), response times, and service channels.  
+4. **Claim Process** – Steps customers must take to file a warranty claim, required documentation, and expected resolution timelines.  
+5. **Legal Disclaimers** – Any necessary legal terms or limitations of liability.  
+
+The tone should be **professional, clear, and legally precise** to ensure customers fully understand their rights and obligations. If applicable, tailor the response to industry-specific standards or regulatory requirements.  
