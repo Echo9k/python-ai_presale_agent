@@ -1,20 +1,16 @@
-import os
+# chains/proposal_chain.py
 import json
-from dotenv import load_dotenv
-
-# Load environment variables from .env
-load_dotenv()
-
 from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
+from utils.config import settings
 
-# Initialize Groq LLM with the model and temperature
-groq_api_key = os.getenv("GROQ_API_KEY")
+
+# Initialize Groq LLM using config values
 llm = ChatGroq(
-    model_name="llama-3.3-70b-versatile",
-    temperature=0.7,
-    api_key=groq_api_key
+    model_name=settings.MODEL_NAME,
+    temperature=settings.TEMPERATURE,
+    api_key=settings.GROQ_API_KEY
 )
 
 # Define the expected JSON structure for the proposal output
@@ -40,7 +36,7 @@ proposal_structure = {
 parser = JsonOutputParser(pydantic_object=proposal_structure)
 
 # Create a prompt template for generating the proposal.
-# Notice the use of double curly braces to escape the JSON structure
+# Use double curly braces to escape the JSON structure.
 prompt = ChatPromptTemplate.from_messages([
     (
         "system",
@@ -60,7 +56,7 @@ prompt = ChatPromptTemplate.from_messages([
     ("user", "{input}")
 ])
 
-# Chain the prompt, LLM, and parser to ensure JSON output
+# Chain the prompt, LLM, and parser together
 chain = prompt | llm | parser
 
 def generate_proposal(input_text: str) -> dict:
@@ -71,19 +67,33 @@ def generate_proposal(input_text: str) -> dict:
         input_text (str): A description containing project requirements and context.
 
     Returns:
-        dict: A dictionary with the proposal details including cost, duration, team, assumptions, and warranty.
+        dict: The proposal details in JSON format.
     """
     result = chain.invoke({"input": input_text})
     return result
 
-if __name__ == "__main__":
-    # Example project description to generate a proposal
-    input_description = (
-        "We are launching a new AI solution for retail analytics. The project should analyze current market trends, "
-        "determine cost-effective strategies, estimate project duration, and define necessary team roles. "
-        "It must also list key assumptions and include warranty and support terms."
+
+def assemble_proposal_document(proposal: dict) -> str:
+    """
+    Formats the JSON proposal into a Markdown-formatted document.
+
+    Args:
+        proposal (dict): Proposal details in JSON format.
+
+    Returns:
+        str: A Markdown-formatted proposal document.
+    """
+    markdown_document = (
+        "# Project Proposal\n\n"
+        "## Cost Estimation\n"
+        f"{proposal.get('cost_estimation', 'N/A')}\n\n"
+        "## Duration Estimation\n"
+        f"{proposal.get('duration_estimation', 'N/A')}\n\n"
+        "## Team Composition\n"
+        f"{proposal.get('team_composition', 'N/A')}\n\n"
+        "## Assumptions\n"
+        f"{proposal.get('assumptions', 'N/A')}\n\n"
+        "## Warranty Details\n"
+        f"{proposal.get('warranty_details', 'N/A')}\n"
     )
-    
-    proposal = generate_proposal(input_description)
-    print("Generated Proposal:")
-    print(json.dumps(proposal, indent=2))
+    return markdown_document

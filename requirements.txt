@@ -1,6 +1,7 @@
+fastapi
+uvicorn
+python-dotenv
+pydantic-settings
+pydantic
 langchain
-langsmith
-langgraph
-python-dotenv  # If you need to manage environment variables
-groq
-crewai
+langchain_groq
