@@ -6,3 +6,5 @@ pydantic
 langchain
 langchain_groq
 aiofiles
+pymilvus
+langchain-milvus

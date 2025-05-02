@@ -3,6 +3,7 @@ from sanic import Sanic, Request
 from sanic.response import json, file as sanic_file # Renamed to avoid conflict
 from sanic.exceptions import SanicException, NotFound, ServerError
 from sanic_ext import Extend, validate
+from api.documents import bp as documents_bp
 
 from pydantic import BaseModel
 from services.proposal_service import get_proposal
@@ -17,9 +18,9 @@ class ProposalRequest(BaseModel):
     tone: str = "professional"
     output_format: str = "markdown"  # Options: "plain" or "markdown"
 
-# --- Sanic App Initialization ---
 app = Sanic("AIPreSalesProposalGeneratorAPI")
-Extend(app) # Enable sanic-ext features like Pydantic validation
+Extend(app)
+app.blueprint(documents_bp)
 
 # --- Routes ---
 
@@ -64,7 +65,6 @@ async def generate_proposal_endpoint(request: Request, body: ProposalRequest): #
         # Raise a Sanic exception for internal server errors
         raise ServerError(f"Internal server error: {str(e)}")
 
-# --- Optional: Add main execution block for direct running (useful for local dev) ---
-# if __name__ == "__main__":
-#     port = int(os.environ.get("PORT", 8000)) # Use PORT env var if available
-#     app.run(host="0.0.0.0", port=port, dev=True) # dev=True enables auto-reload
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    app.run(host="0.0.0.0", port=port, dev=True)
