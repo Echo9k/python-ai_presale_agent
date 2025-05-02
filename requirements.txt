@@ -1,5 +1,5 @@
-fastapi
-uvicorn
+sanic
+sanic-ext
 python-dotenv
 pydantic-settings
 pydantic

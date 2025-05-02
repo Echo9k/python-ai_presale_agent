@@ -1,26 +1,15 @@
 # api/main.py
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
+from sanic import Sanic, Request
+from sanic.response import json, file as sanic_file # Renamed to avoid conflict
+from sanic.exceptions import SanicException, NotFound, ServerError
+from sanic_ext import Extend, validate
+
 from pydantic import BaseModel
 from services.proposal_service import get_proposal
 from utils.logger import logger
+import os # To potentially get PORT for Cloud Run
 
-
-app = FastAPI(title="AI Pre-Sales Proposal Generator API", version="1.0")
-
-# Serve the front-end index.html when visiting the root URL
-@app.get("/")
-def read_root():
-    logger.debug("Serving index.html from frontend directory")
-    return FileResponse("frontend/index.html")
-
-# Health check endpoint
-@app.get("/health")
-def health_check():
-    logger.debug("Health check endpoint accessed.")
-    return {"status": "ok"}
-
-# Define the request model for proposal generation
+# Define the request model (remains the same)
 class ProposalRequest(BaseModel):
     input_text: str
     include_context: bool = False
@@ -28,21 +17,54 @@ class ProposalRequest(BaseModel):
     tone: str = "professional"
     output_format: str = "markdown"  # Options: "plain" or "markdown"
 
+# --- Sanic App Initialization ---
+app = Sanic("AIPreSalesProposalGeneratorAPI")
+Extend(app) # Enable sanic-ext features like Pydantic validation
+
+# --- Routes ---
+
+# Serve the front-end index.html when visiting the root URL
+@app.get("/")
+async def read_root(request: Request):
+    logger.debug("Serving index.html from frontend directory")
+    try:
+        # Construct the full path relative to the script's location might be safer
+        # Assuming 'frontend' is at the same level as 'api'
+        base_dir = os.path.dirname(os.path.dirname(__file__)) # Go up one level from api/
+        file_path = os.path.join(base_dir, "frontend", "index.html")
+        return await sanic_file(file_path)
+    except FileNotFoundError:
+        logger.error("index.html not found.")
+        raise NotFound("index.html not found")
+
+# Health check endpoint
+@app.get("/health")
+async def health_check(request: Request):
+    logger.debug("Health check endpoint accessed.")
+    return json({"status": "ok"})
+
 # API endpoint to generate a proposal
 @app.post("/generate_proposal")
-def generate_proposal_endpoint(request: ProposalRequest):
-    logger.info("Received proposal generation request: %s", request)
+@validate(json=ProposalRequest) # Use sanic-ext to validate Pydantic model
+async def generate_proposal_endpoint(request: Request, body: ProposalRequest): # Validated body is passed
+    logger.info("Received proposal generation request: %s", body)
     try:
         result = get_proposal(
-            request.input_text,
-            formatted=True,
-            include_context=request.include_context,
-            industry=request.industry,
-            tone=request.tone,
-            output_format=request.output_format
+            body.input_text,
+            formatted=True, # Assuming this should always be true for the API
+            include_context=body.include_context,
+            industry=body.industry,
+            tone=body.tone,
+            output_format=body.output_format
         )
         logger.info("Proposal generated successfully.")
-        return result
+        return json(result) # Return JSON response
     except Exception as e:
         logger.error("Error generating proposal in API endpoint", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        # Raise a Sanic exception for internal server errors
+        raise ServerError(f"Internal server error: {str(e)}")
+
+# --- Optional: Add main execution block for direct running (useful for local dev) ---
+# if __name__ == "__main__":
+#     port = int(os.environ.get("PORT", 8000)) # Use PORT env var if available
+#     app.run(host="0.0.0.0", port=port, dev=True) # dev=True enables auto-reload
