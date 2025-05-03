@@ -18,9 +18,16 @@ class ProposalRequest(BaseModel):
     tone: str = "professional"
     output_format: str = "markdown"  # Options: "plain" or "markdown"
 
+
 app = Sanic("AIPreSalesProposalGeneratorAPI")
 Extend(app)
 app.blueprint(documents_bp)
+
+# Attach Milvus vectorstore to app context at startup
+@app.main_process_start
+async def setup_vectorstore(app):
+    from utils.milvus_connector import ensure_collection_exists
+    app.ctx.doc_vs = ensure_collection_exists()
 
 # --- Routes ---
 

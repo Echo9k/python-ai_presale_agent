@@ -9,14 +9,12 @@ from sanic.log import logger
 
 bp = Blueprint("documents", url_prefix="/documents")
 
-# Ensure collection exists at startup
-doc_vs = ensure_collection_exists()
+
 
 @bp.get("")
 @openapi.summary("List all uploaded documents")
 async def list_documents(request: Request):
-    # Query Milvus for all unique filenames in metadata
-    # LangChain doesn't provide a direct way, so we use the underlying client
+    doc_vs = request.app.ctx.doc_vs
     client = doc_vs._connection
     expr = ""
     output_fields = ["filename"]
@@ -31,6 +29,7 @@ async def list_documents(request: Request):
 @bp.post("")
 @openapi.summary("Upload a document and store its vectors in Milvus")
 async def upload_document(request: Request):
+    doc_vs = request.app.ctx.doc_vs
     if not request.files or "file" not in request.files:
         return response.json({"error": "No file uploaded"}, status=400)
     file = request.files["file"]
@@ -56,7 +55,7 @@ async def upload_document(request: Request):
 @bp.delete("/<filename:str>")
 @openapi.summary("Delete all vectors for a document by filename")
 async def delete_document(request: Request, filename: str):
-    # Delete all vectors with this filename in metadata
+    doc_vs = request.app.ctx.doc_vs
     client = doc_vs._connection
     expr = f'filename == "{filename}"'
     client.delete(collection_name=doc_vs._collection_name, expr=expr)
