@@ -8,3 +8,6 @@ langchain_groq
 aiofiles
 pymilvus
 langchain-milvus
+langchain-community
+sentence-transformers
+langchain-huggingface

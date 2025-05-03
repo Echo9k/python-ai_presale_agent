@@ -1,6 +1,7 @@
-from langchain_community.vectorstores import Milvus
-from langchain.embeddings import HuggingFaceEmbeddings
+from langchain_milvus.vectorstores.zilliz import Zilliz
+from langchain_huggingface import HuggingFaceEmbeddings
 from utils.config import settings
+
 
 # You can change this to your preferred embedding model
 EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
@@ -10,16 +11,13 @@ COLLECTION_NAME = "documents"
 
 
 def get_milvus_vectorstore():
-    # Set up the embedding function
     embedding = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
-
-    # Connect to Milvus (Zilliz Cloud)
-    vectorstore = Milvus(
+    # Use the endpoint and token from .env
+    vectorstore = Zilliz(
         embedding_function=embedding,
         connection_args={
-            "uri": f"https://{settings.ZILLIZ_CLUSTER_ID}.gcp-us-west1.zillizcloud.com:19530",
-            "user": settings.ZILLIZ_USER,
-            "password": settings.ZILLIZ_PASSWORD,
+            "uri": settings.ZILLIZ_ENDPOINT,
+            "token": settings.ZILLIZ_TOKEN,
             "secure": True,
         },
         collection_name=COLLECTION_NAME,

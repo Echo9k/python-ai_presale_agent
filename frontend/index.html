@@ -33,7 +33,22 @@
 <body>
   <div class="container my-4">
     <h1 class="mb-4">AI Proposal Generator</h1>
-    
+
+    <!-- Context File Upload & List -->
+    <div class="mb-4 p-3 border rounded bg-light">
+      <h2>Context Files</h2>
+      <form id="contextUploadForm" class="mb-2" enctype="multipart/form-data">
+        <div class="input-group">
+          <input type="file" id="contextFileInput" class="form-control" required>
+          <button type="submit" class="btn btn-secondary">Upload</button>
+        </div>
+      </form>
+      <div>
+        <strong>Uploaded Files:</strong>
+        <ul id="contextFileList" class="mb-0"></ul>
+      </div>
+    </div>
+
     <!-- Step 1: Initial Configuration -->
     <div id="configSection">
       <h2>Step 1: Enter Project Description & Settings</h2>
@@ -119,6 +134,40 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   
   <script>
+    // --- Context File Upload & List Logic ---
+    async function fetchContextFiles() {
+      const res = await fetch('/documents');
+      const data = await res.json();
+      const list = document.getElementById('contextFileList');
+      list.innerHTML = '';
+      (data.files || []).forEach(f => {
+        const li = document.createElement('li');
+        li.textContent = f;
+        list.appendChild(li);
+      });
+    }
+
+    document.getElementById('contextUploadForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const fileInput = document.getElementById('contextFileInput');
+      if (!fileInput.files.length) return;
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+      const res = await fetch('/documents', {
+        method: 'POST',
+        body: formData
+      });
+      if (res.ok) {
+        fileInput.value = '';
+        fetchContextFiles();
+      } else {
+        alert('Failed to upload file.');
+      }
+    });
+
+    // Fetch context files on page load
+    fetchContextFiles();
+
     // Global variables to hold configuration and generated sections
     let configData = {};
     const sections = ['Cost Estimation', 'Duration Estimation', 'Team Composition', 'Assumptions', 'Warranty Details'];

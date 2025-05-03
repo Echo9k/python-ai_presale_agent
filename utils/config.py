@@ -1,4 +1,4 @@
-docker run -p 8000:8000 <your_image_name># utils/config.py
+# utils/config.py
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     ZILLIZ_PASSWORD: str
     ZILLIZ_CLUSTER_ID: str
     ZILLIZ_CLOUD_REGION: str
+    ZILLIZ_TOKEN: str
+    ZILLIZ_ENDPOINT: str
 
     class Config:
         env_file = ".env"
